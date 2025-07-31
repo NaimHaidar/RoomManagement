@@ -25,10 +25,9 @@ public partial class Room
     public virtual Location Location { get; set; } = null!;
 
     [InverseProperty("Room")]
-    public virtual ICollection<Meeting> Meetings { get; set; } = new List<Meeting>();
-
+    public virtual ICollection<Meeting> Meetings { get; set; }
     [InverseProperty("Room")]
-    public virtual ICollection<RoomFeature> RoomFeatures { get; set; } = new List<RoomFeature>();
+    public virtual ICollection<RoomFeature> RoomFeatures { get; set; } 
     public Room()
     {
         Meetings = new List<Meeting>();
