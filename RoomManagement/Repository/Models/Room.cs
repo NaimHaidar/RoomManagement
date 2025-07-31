@@ -29,4 +29,17 @@ public partial class Room
 
     [InverseProperty("Room")]
     public virtual ICollection<RoomFeature> RoomFeatures { get; set; } = new List<RoomFeature>();
+    public Room()
+    {
+        Meetings = new List<Meeting>();
+        RoomFeatures = new List<RoomFeature>();
+    }
+    public Room(string name, int capacity, int locationId)
+    {
+        Name = name;
+        Capacity = capacity;
+        LocationId = locationId;
+        Meetings = new List<Meeting>();
+        RoomFeatures = new List<RoomFeature>();
+    }
 }
