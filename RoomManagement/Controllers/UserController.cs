@@ -4,8 +4,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RoomManagement.Repository;
 using RoomManagement.Repository.Models;
 
-namespace RoomManagement.Controllers
-{
     [ApiController]
     [Route("[controller]")]
     public class UserController : ControllerBase
@@ -13,39 +11,39 @@ namespace RoomManagement.Controllers
     
 
         [HttpGet(Name = "GetUser")]
-        public IEnumerable<User> Get()
+        public IEnumerable<UserDto> Get()
         { using (var context = new RoomManagementDBContext())
             {
-                return context.Users.ToList();
+                return context.Users.Select(u => new UserDto(u.Id, u.Name, u.Email, u.RoleId)).ToList();
             }
         }
 
         [HttpGet("{id}")]
-        public IEnumerable<User> GetById(int id)
+        public UserDto GetById(int id)
         {
             using (var context = new RoomManagementDBContext())
             {
                
-                return context.Users.Where(u => u.Id == id).ToList();
+                return context.Users.Where(u => u.Id == id).Select(u=>new UserDto(u)).First();
             }
         }
 
         [HttpPost(Name ="setUser")]
-        public IEnumerable<User> set(string name,string email,string pass,int roleId)
+        public UserDto set(string name,string email,string pass,int roleId)
         {
             using (var context = new RoomManagementDBContext())
             {User user = new User(name, email, pass, roleId);
                 context.Users.Add(user);
                 context.SaveChanges();
-                return context.Users.Where(u => u.Id == user.Id).ToList();
+                return context.Users.Where(u => u.Id == user.Id).Select(u => new UserDto(u)).First();
             }
         }
         [HttpPut(Name = "UpdateUser")]
-        public IEnumerable<User> Update(int id ,string name, string email, string pass, int roleId)
+        public UserDto Update(int id ,string name, string email, string pass, int roleId)
         {
             using (var context = new RoomManagementDBContext())
             {
-                var user = context.Users.Where(u => u.Id == id).FirstOrDefault();
+                var user = context.Users.Where(u => u.Id == id).First();
                 if (user != null)
                 {
                     user.Name = name;
@@ -55,7 +53,7 @@ namespace RoomManagement.Controllers
                     context.SaveChanges();
                 }
                 context.SaveChanges();
-                return context.Users.Where(u => u.Id == id).ToList();
+                return context.Users.Where(u => u.Id == id).Select(u=>new UserDto(u)).First();
             }
         }
         [HttpDelete( Name = "DeleteUser")]
@@ -77,4 +75,3 @@ namespace RoomManagement.Controllers
 
 
     }
-}
