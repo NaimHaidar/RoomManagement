@@ -29,17 +29,17 @@ using RoomManagement.Repository.Models;
         }
 
         [HttpPost(Name ="setUser")]
-        public UserDto set(string name,string email,string pass,int roleId)
+        public NewUserDto set(NewUserDto u)
         {
             using (var context = new RoomManagementDBContext())
-            {User user = new User(name, email, pass, roleId);
+            {User user = new User(u.Name, u.Email,u.Password,u.RoleId);
                 context.Users.Add(user);
                 context.SaveChanges();
-                return context.Users.Where(u => u.Id == user.Id).Select(u => new UserDto(u)).First();
+                return context.Users.Where(u => u.Id == user.Id).Select(u => new NewUserDto(u)).First();
             }
         }
         [HttpPut(Name = "UpdateUser")]
-        public UserDto Update(int id ,string name, string email, string pass, int roleId)
+        public NewUserDto Update(int id ,string name, string email, string pass, int roleId)
         {
             using (var context = new RoomManagementDBContext())
             {
@@ -53,7 +53,7 @@ using RoomManagement.Repository.Models;
                     context.SaveChanges();
                 }
                 context.SaveChanges();
-                return context.Users.Where(u => u.Id == id).Select(u=>new UserDto(u)).First();
+                return context.Users.Where(u => u.Id == id).Select(u=>new NewUserDto(u)).First();
             }
         }
         [HttpDelete( Name = "DeleteUser")]
@@ -74,4 +74,4 @@ using RoomManagement.Repository.Models;
         }
 
 
-    }
+}
