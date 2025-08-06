@@ -23,7 +23,7 @@ public partial class Notification
 
     public bool? Readed { get; set; }
 
-    public int UserId { get; set; }
+    public string UserId { get; set; } = null!;
 
     [ForeignKey("UserId")]
     [InverseProperty("Notifications")]

@@ -14,7 +14,7 @@ public partial class Attendee
 
     public int MeetingId { get; set; }
 
-    public int UserId { get; set; }
+    public string UserId { get; set; } = null!;
 
     [ForeignKey("MeetingId")]
     [InverseProperty("Attendees")]

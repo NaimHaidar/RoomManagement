@@ -21,7 +21,7 @@ public partial class Meeting
 
     public DateOnly? EndDate { get; set; }
 
-    public int UserId { get; set; }
+    public string UserId { get; set; } = null!;
 
     public int RoomId { get; set; }
 

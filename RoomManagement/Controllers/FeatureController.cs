@@ -2,77 +2,72 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RoomManagement.Repository;
 using RoomManagement.Repository.Models;
+using Microsoft.AspNetCore.Authorization; // Added for Authorization
 
 namespace RoomManagement.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize] // Apply authorization to the entire controller
     public class FeatureController : ControllerBase
     {
-    
+        private readonly RoomManagementDBContext _context;
+
+        public FeatureController(RoomManagementDBContext context)
+        {
+            _context = context;
+        }
 
         [HttpGet(Name = "GetFeature")]
+        [AllowAnonymous]
         public IEnumerable<Feature> Get()
-        { using (var context = new RoomManagementDBContext())
-            {
-                return context.Features.ToList();
-            }
+        {
+            return _context.Features.ToList();
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous] 
         public IEnumerable<Feature> GetById(int id)
         {
-            using (var context = new RoomManagementDBContext())
-            {
-               
-                return context.Features.Where(f => f.Id == id).ToList();
-            }
+            return _context.Features.Where(f => f.Id == id).ToList();
         }
 
-        [HttpPost(Name ="setFeature")]
-        public IEnumerable<Feature> set(string name)
+        [HttpPost(Name = "setFeature")]
+        [Authorize(Roles = "Admin")] 
+        public IEnumerable<Feature> Set(string name)
         {
-            using (var context = new RoomManagementDBContext())
-            {
-                Feature feature = new Feature(name);
-                context.Features.Add(feature);
-                context.SaveChanges();
-                return context.Features.Where(f => f.Id == feature.Id).ToList();
-            }
+            Feature feature = new Feature(name);
+            _context.Features.Add(feature);
+            _context.SaveChanges();
+            return _context.Features.Where(f => f.Id == feature.Id).ToList();
         }
+
         [HttpPut(Name = "UpdateFeature")]
-        public IEnumerable<Feature> Update(int id ,string name)
+        [Authorize(Roles = "Admin")] 
+        public IEnumerable<Feature> Update(int id, string name)
         {
-            using (var context = new RoomManagementDBContext())
+            var feature = _context.Features.Where(f => f.Id == id).FirstOrDefault();
+            if (feature != null)
             {
-                var feature = context.Features.Where(f => f.Id == id).FirstOrDefault();
-                if (feature != null)
-                {
-                    feature.Feature1 = name;
-                    context.SaveChanges(); 
-                }
-               
-               
-                return context.Features.Where(f => f.Id == id).ToList();
+                feature.Feature1 = name;
+                _context.SaveChanges();
             }
+            return _context.Features.Where(f => f.Id == id).ToList();
         }
-        [HttpDelete( Name = "DeleteFeature")]
+
+        [HttpDelete(Name = "DeleteFeature")]
+        [Authorize(Roles = "Admin")]
         public IActionResult Delete(int id)
         {
-            using (var context = new RoomManagementDBContext())
+            var feature = _context.Features.FirstOrDefault(f => f.Id == id);
+            if (feature == null)
             {
-                var feature = context.Features.FirstOrDefault(f => f.Id == id);
-                if (feature == null)
-                {
-                    return NotFound(new { message = $"Feature with ID {id} not found." });
-                }
-
-                context.Features.Remove(feature);
-                context.SaveChanges();
-                return Ok(new { message = $"Feature with ID {id} has been deleted." });
+                return NotFound(new { message = $"Feature with ID {id} not found." });
             }
+
+            _context.Features.Remove(feature);
+            _context.SaveChanges();
+            return Ok(new { message = $"Feature with ID {id} has been deleted." });
         }
-
-
     }
 }
