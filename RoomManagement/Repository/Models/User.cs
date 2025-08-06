@@ -10,12 +10,9 @@ namespace RoomManagement.Repository.Models;
 [Index("Email", Name = "UQ__User__A9D1053463D78678", IsUnique = true)]
 public partial class User
 {
-    [Key]
-    public int Id { get; set; }
-
     [StringLength(30)]
     [Unicode(false)]
-    public string? Name { get; set; }
+    public string Name { get; set; }
 
     [StringLength(30)]
     [Unicode(false)]

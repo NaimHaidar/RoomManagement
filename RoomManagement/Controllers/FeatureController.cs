@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using RoomManagement.Repository;
 using RoomManagement.Repository.Models;
 
@@ -32,7 +33,8 @@ namespace RoomManagement.Controllers
         public IEnumerable<Feature> set(string name)
         {
             using (var context = new RoomManagementDBContext())
-            {Feature feature = new Feature(name);
+            {
+                Feature feature = new Feature(name);
                 context.Features.Add(feature);
                 context.SaveChanges();
                 return context.Features.Where(f => f.Id == feature.Id).ToList();

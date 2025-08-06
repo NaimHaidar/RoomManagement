@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using RoomManagement.Repository.Models;
 
@@ -13,9 +15,7 @@ public partial class RoomManagementDBContext : DbContext
     }
 
     public RoomManagementDBContext(DbContextOptions<RoomManagementDBContext> options)
-        : base(options)
-    {
-    }
+        : base(options) {}
 
     public virtual DbSet<Attachment> Attachments { get; set; }
 
