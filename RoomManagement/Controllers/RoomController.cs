@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RoomManagement.Repository;
 using RoomManagement.Repository.Models;
-using Microsoft.AspNetCore.Authorization; 
+using Microsoft.AspNetCore.Authorization;
+using RoomManagement.Repository.DTOs;
 
 namespace RoomManagement.Controllers
 {
@@ -19,42 +20,47 @@ namespace RoomManagement.Controllers
         }
 
         [HttpGet(Name = "GetRoom")]
-        [AllowAnonymous] 
-        public IEnumerable<Room> Get()
+        [Authorize]
+        public async Task<IEnumerable<RoomDto>> Get()
         {
-            return _context.Rooms.ToList();
+            return await _context.Rooms.Select(r => new RoomDto(r)).ToListAsync();
         }
 
-        [HttpGet("{id}")]
-        [AllowAnonymous] 
-        public IEnumerable<Room> GetById(int id)
+        [HttpGet("count", Name = "GetNbrRoom")]
+        public async Task<int> GetNbr()
         {
-            return _context.Rooms.Where(r => r.Id == id).ToList();
+            return await _context.Rooms.CountAsync();
+        }
+        [HttpGet("{id}")]
+        [Authorize] 
+        public async Task<IEnumerable<RoomDto>> GetById(int id)
+        {
+            return await _context.Rooms.Where(r => r.Id == id).Select(r=>new RoomDto(r)).ToListAsync();
         }
 
         [HttpPost(Name = "setRoom")]
         [Authorize(Roles = "Admin")] 
-        public IEnumerable<Room> Set(string name, int capacity, int locationId)
+        public async Task<IEnumerable<RoomDto>> Set(NewRoomDto Room)
         {
-            Room room = new Room(name, capacity, locationId);
+            Room room = new Room(Room);
             _context.Rooms.Add(room);
-            _context.SaveChanges();
-            return _context.Rooms.Where(r => r.Id == room.Id).ToList();
+             await _context.SaveChangesAsync();
+            return _context.Rooms.Where(r => r.Id == room.Id).Select(r=>new RoomDto(r)).ToList();
         }
 
         [HttpPut(Name = "UpdateRoom")]
         [Authorize(Roles = "Admin")] 
-        public IEnumerable<Room> Update(int id, string name, int capacity, int locationId)
+      public async Task<IEnumerable<RoomDto>> Update(RoomDto Room)
         {
-            var room = _context.Rooms.Where(r => r.Id == id).FirstOrDefault();
+            var room = _context.Rooms.FirstOrDefault(r => r.Id == Room.Id);
             if (room != null)
             {
-                room.Name = name;
-                room.Capacity = capacity;
-                room.LocationId = locationId;
-                _context.SaveChanges();
+                room.Name = Room.Name;
+                room.Capacity = Room.Capacity;
+                room.LocationId = Room.LocationId;
+                await _context.SaveChangesAsync();
             }
-            return _context.Rooms.Where(r => r.Id == id).ToList();
+            return _context.Rooms.Where(r => r.Id == Room.Id).Select(r => new RoomDto(r)).ToList();
         }
 
         [HttpDelete(Name = "DeleteRoom")]
@@ -71,5 +77,29 @@ namespace RoomManagement.Controllers
             _context.SaveChanges();
             return Ok(new { message = $"Room with ID {id} has been deleted." });
         }
+
+        [HttpGet("{roomId}/features")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<FeatureDto>>> GetRoomFeatures(int roomId)
+        {
+            var roomExists = await _context.Rooms.AnyAsync(r => r.Id == roomId);
+            if (!roomExists)
+                return NotFound(new { message = $"Room with ID {roomId} not found." });
+
+            
+            var features = await _context.RoomFeatures
+                .Where(rf => rf.RoomId == roomId)
+                .Join(
+                    _context.Features,             
+                    rf => rf.FeatureId,            
+                    f => f.Id,                     
+                    (rf, f) => new FeatureDto (f)     
+                    
+                )
+                .ToListAsync();
+
+            return Ok(features);
+        }
+
     }
 }

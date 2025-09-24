@@ -32,4 +32,13 @@ public partial class Location
 
     [InverseProperty("Location")]
     public virtual ICollection<Room> Rooms { get; set; } = new List<Room>();
+    public Location() { }
+    public Location(NewLocationDto location)
+    {
+        Country = location.Country;
+        City = location.City;
+        Building = location.Building;
+        Floor = location.Floor;
+        MapLink = location.MapLink;
+    }
 }

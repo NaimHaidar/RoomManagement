@@ -13,8 +13,7 @@ public class NewUserDto
     public string Email { get; set; } = null!;
     public String Role { get; set; } = "gest"; 
 
-    [Required(ErrorMessage = "Password is required")]
-    [StringLength(30, MinimumLength = 6, ErrorMessage = "Password must be between 6 and 30 characters")]
+   
     public string Password { get; set; } = null!;
 
     public NewUserDto() { }

@@ -17,9 +17,9 @@ public partial class Meeting
     public string? Title { get; set; }
 
     [Column(TypeName = "datetime")]
-    public DateTime? StartDate { get; set; }
-
-    public DateOnly? EndDate { get; set; }
+    public DateTime StartDate { get; set; }
+    [Column(TypeName = "datetime")]
+    public DateTime EndDate { get; set; }
 
     public string UserId { get; set; } = null!;
 
@@ -41,4 +41,18 @@ public partial class Meeting
     [ForeignKey("UserId")]
     [InverseProperty("Meetings")]
     public virtual User User { get; set; } = null!;
+    public Meeting() { }
+    public Meeting (NewMeetingDto metting) {
+        Title = metting.Title;
+        StartDate = metting.StartDate;
+        EndDate = metting.EndDate;
+        UserId = metting.UserId;
+        RoomId = metting.RoomId;
+        foreach (var att in metting.attendees)
+        {
+            Attendees.Add(new Attendee(att,this.Id));
+        }
+
+    }
+
 }

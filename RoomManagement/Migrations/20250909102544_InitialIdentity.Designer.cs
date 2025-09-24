@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RoomManagement.Repository;
 
@@ -11,9 +12,11 @@ using RoomManagement.Repository;
 namespace RoomManagement.Migrations
 {
     [DbContext(typeof(RoomManagementDBContext))]
-    partial class RoomManagementDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250909102544_InitialIdentity")]
+    partial class InitialIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -565,7 +568,6 @@ namespace RoomManagement.Migrations
                     b.HasOne("RoomManagement.Repository.Models.Meeting", "Meeting")
                         .WithMany("Attendees")
                         .HasForeignKey("MeetingId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK__Attendee__Meetin__3D7E1B63");
 
@@ -585,7 +587,6 @@ namespace RoomManagement.Migrations
                     b.HasOne("RoomManagement.Repository.Models.Room", "Room")
                         .WithMany("Meetings")
                         .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK__Meeting__RoomId__33008CF0");
 

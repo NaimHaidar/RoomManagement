@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using RoomManagement.Repository.DTOs;
 
 namespace RoomManagement.Repository.Models;
 
@@ -40,5 +41,23 @@ public partial class Room
         LocationId = locationId;
         Meetings = new List<Meeting>();
         RoomFeatures = new List<RoomFeature>();
+    }
+    public Room(RoomDto room)
+    {
+        Id = room.Id;
+        Name = room.Name;
+        Capacity = room.Capacity;
+        LocationId = room.LocationId;
+        Meetings = new List<Meeting>();
+        RoomFeatures = new List<RoomFeature>();
+    }
+    public Room(NewRoomDto room)
+    {
+        Name = room.Name;
+        Capacity = room.Capacity;
+        LocationId = room.LocationId;
+        Meetings = new List<Meeting>();
+        RoomFeatures = new List<RoomFeature>();
+
     }
 }

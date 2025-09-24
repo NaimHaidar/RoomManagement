@@ -12,8 +12,8 @@ using RoomManagement.Repository;
 namespace RoomManagement.Migrations
 {
     [DbContext(typeof(RoomManagementDBContext))]
-    [Migration("20250806033223_InitialCreateWithIdentity")]
-    partial class InitialCreateWithIdentity
+    [Migration("20250922203905_CascadeDeleteAttendees")]
+    partial class CascadeDeleteAttendees
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -272,13 +272,13 @@ namespace RoomManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateOnly?>("EndDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime");
 
                     b.Property<int>("RoomId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("StartDate")
+                    b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime");
 
                     b.Property<string>("Title")
@@ -568,6 +568,7 @@ namespace RoomManagement.Migrations
                     b.HasOne("RoomManagement.Repository.Models.Meeting", "Meeting")
                         .WithMany("Attendees")
                         .HasForeignKey("MeetingId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK__Attendee__Meetin__3D7E1B63");
 

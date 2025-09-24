@@ -79,6 +79,17 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Secret"]))
     };
 });
+builder.Services.AddCors();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("local",
+        builder =>
+        {
+            builder.WithOrigins("http://127.0.0.1:5501")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
+});
 
 var app = builder.Build();
 
@@ -90,11 +101,12 @@ if (app.Environment.IsDevelopment())
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseHttpsRedirection();
-
+app.UseCors("local");
 app.UseAuthentication(); 
 app.UseAuthorization();
 
 app.MapControllers();
+
 
 using (var scope = app.Services.CreateScope())
 {

@@ -41,7 +41,7 @@ namespace RoomManagement.Repository
                 entity.HasKey(e => e.Id).HasName("PK__Attendee__3214EC07609B4A47");
 
                 entity.HasOne(d => d.Meeting).WithMany(p => p.Attendees)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK__Attendee__Meetin__3D7E1B63");
 
                 entity.HasOne(d => d.User).WithMany(p => p.Attendees)
@@ -65,7 +65,7 @@ namespace RoomManagement.Repository
                 entity.HasKey(e => e.Id).HasName("PK__Meeting__3214EC0769F3A369");
 
                 entity.HasOne(d => d.Room).WithMany(p => p.Meetings)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK__Meeting__RoomId__33008CF0");
 
                 entity.HasOne(d => d.User).WithMany(p => p.Meetings)

@@ -98,9 +98,15 @@ namespace RoomManagement.Controllers
             }
             return userDtos;
         }
+        [HttpGet("count", Name = "GetNbrUser")]
+        [Authorize]
+        public async Task<int> GetNbr()
+        {
+            return await _userManager.Users.CountAsync();
+        }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin")] 
+        [Authorize] 
         public async Task<ActionResult<UserDto>> GetById(string id) 
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -125,46 +131,55 @@ namespace RoomManagement.Controllers
                 return BadRequest(result.Errors);
             }
             if (String.IsNullOrWhiteSpace(newUserDto.Role)||newUserDto.Role=="string") { 
-                newUserDto.Role = "gest";
+                newUserDto.Role = "Gest";
             }
             await _userManager.AddToRoleAsync(user, newUserDto.Role); 
             var roles = await _userManager.GetRolesAsync(user);
             return Ok(new UserDto(user,roles));
         }
 
-        [HttpPut(Name = "UpdateUser")]
-        [Authorize(Roles = "Admin,Employee")] 
-        public async Task<IActionResult> Update(string id, [FromBody] NewUserDto updateUserDto) 
+        [HttpPut( Name = "UpdateUser")]
+        [Authorize(Roles = "Admin,Employee")]
+        public async Task<IActionResult> Update(string id, [FromBody] NewUserDto updateUserDto)
         {
+            if (updateUserDto == null)
+                return BadRequest("User data is required.");
+
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
-            {
                 return NotFound(new { message = $"User with ID {id} not found." });
-            }
 
             user.Name = updateUserDto.Name;
             user.Email = updateUserDto.Email;
-            user.UserName = updateUserDto.Email; 
+            user.UserName = updateUserDto.Email;
 
             var result = await _userManager.UpdateAsync(user);
-
             if (!result.Succeeded)
-            {
                 return BadRequest(result.Errors);
-            }
 
             if (!string.IsNullOrEmpty(updateUserDto.Password))
             {
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var passwordChangeResult = await _userManager.ResetPasswordAsync(user, token, updateUserDto.Password);
                 if (!passwordChangeResult.Succeeded)
-                {
                     return BadRequest(passwordChangeResult.Errors);
+            }
+
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            if (!string.IsNullOrWhiteSpace(updateUserDto.Role))
+            {
+                if (!currentRoles.Contains(updateUserDto.Role))
+                {
+                    if (currentRoles.Any())
+                        await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                    await _userManager.AddToRoleAsync(user, updateUserDto.Role);
                 }
             }
+
             var roles = await _userManager.GetRolesAsync(user);
-            return Ok(new UserDto(user,roles));
+            return Ok(new UserDto(user, roles));
         }
+
 
         [HttpDelete(Name = "DeleteUser")]
         [Authorize(Roles = "Admin")] 
@@ -214,12 +229,15 @@ namespace RoomManagement.Controllers
                 user.RefreshToken = refreshToken;
                 user.RefreshTokenExpiryTime = DateTime.Now.AddDays(10); 
                 await _userManager.UpdateAsync(user);
-
+               String userId= user.Id;
                 return Ok(new
                 {
                     accessToken = new JwtSecurityTokenHandler().WriteToken(token),
                     refreshToken = refreshToken,
-                    expiration = token.ValidTo
+                    expiration = token.ValidTo,
+                    use = userId
+
+
                 });
             }
             return Unauthorized(new { message = "Invalid credentials." });
